@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "542634110316",
+    "project_id": "loplop-686d0",
+    "storage_bucket": "loplop-686d0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:542634110316:android:01a2e43059e6f451315749",
+        "android_client_info": {
+          "package_name": "com.siscofran.loplop"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "542634110316-cnq3bjqpfkmif13r2mf1m9cvmhtnealb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.siscofran.loplop",
+            "certificate_hash": "3bd2bc1738f9f545ec8a6b7215cf016007ffb102"
+          }
+        },
+        {
+          "client_id": "542634110316-jjrf5rkuf1lc7rnq9e026k31qi7cjh35.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAw59jNz3LfBSQ0rL9bNJOvaaLqGSEmRbU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "542634110316-jjrf5rkuf1lc7rnq9e026k31qi7cjh35.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
