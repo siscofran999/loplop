@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Loplop</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="label_siapa_saya">Siapa saya</string>
+    <string name="label_nama_saya">Nama saya ...</string>
+    <string name="label_saya_lahir">Saya lahir ...</string>
+    <string name="label_btn_lanjutkan">Lanjutkan</string>
+    <string name="label_saya">Saya ...</string>
 </resources>
