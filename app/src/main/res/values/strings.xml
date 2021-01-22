@@ -10,4 +10,5 @@
     <string name="label_pria">Pria</string>
     <string name="label_wanita">Wanita</string>
     <string name="label_tertarik">Saya tertarik ...</string>
+    <string name="label_min_photo">Masukan minimal 2 foto untuk melanjutkan</string>
 </resources>

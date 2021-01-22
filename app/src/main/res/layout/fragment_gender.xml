@@ -142,20 +142,6 @@
         app:layout_constraintTop_toBottomOf="@+id/txv_interest"
         app:layout_constraintStart_toStartOf="@+id/txv_female"/>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_next"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/label_btn_lanjutkan"
-        style="@style/PurpleBold20"
-        android:padding="@dimen/dimen_8dp"
-        app:cornerRadius="@dimen/dimen_16dp"
-        app:backgroundTint="@color/white"
-        android:layout_marginStart="@dimen/dimen_36dp"
-        android:layout_marginEnd="@dimen/dimen_36dp"
-        android:layout_marginBottom="@dimen/dimen_34dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+    <include layout="@layout/button_next" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
