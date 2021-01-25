@@ -1,27 +1,89 @@
 package com.siscofran.loplop.ui.inputData.name
 
+import android.annotation.SuppressLint
+import android.app.DatePickerDialog
+import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import com.google.firebase.auth.FirebaseAuth
 import com.siscofran.loplop.R
+import com.siscofran.loplop.databinding.FragmentNameBinding
+import com.siscofran.loplop.ui.inputData.gender.GenderFragment
+import com.siscofran.loplop.utils.logi
+import com.siscofran.loplop.utils.prefGetDate
+import com.siscofran.loplop.utils.saveName
+import java.util.*
 
-class NameFragment : Fragment() {
+class NameFragment : Fragment(), View.OnClickListener {
+
+    private lateinit var auth: FirebaseAuth
+
+    private var _binding: FragmentNameBinding? = null
+    private val binding get() = _binding!!
+    private var day = 0
+    private var month = 0
+    private var year = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_name, container, false)
+        _binding = FragmentNameBinding.inflate(inflater, container, false)
+
+        return binding.root
     }
 
-    companion object {
-//        fun newInstance(param1: String, param2: String) =
-//                NameFragment().apply {
-//                    arguments = Bundle().apply {
-//                        putString(ARG_PARAM1, param1)
-//                        putString(ARG_PARAM2, param2)
-//                    }
-//                }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        auth = FirebaseAuth.getInstance()
+
+        binding.edtName.setText(auth.currentUser?.displayName)
+        binding.edtTgl.setOnClickListener(this)
+        binding.include.btnNext.setOnClickListener(this)
+    }
+
+    override fun onClick(view: View) {
+        when(view.id){
+            R.id.edt_tgl -> {
+                showDatePicker(view.context)
+            }
+            R.id.include -> {
+                btnNextClicked()
+            }
+        }
+    }
+
+    @SuppressLint("CommitPrefEdits")
+    private fun btnNextClicked() {
+        val tgl = binding.edtTgl.text.toString()
+        val name = binding.edtName.text.toString()
+        if(name.isNotEmpty() && tgl.isNotEmpty()){
+            view?.context?.saveName(name, tgl)
+            val ft = fragmentManager?.beginTransaction()
+            ft?.replace(R.id.fragment_input_data, GenderFragment(),"GenderFragment")?.addToBackStack("NameFragment")?.commit()
+        }
+    }
+
+    private fun showDatePicker(context: Context) {
+        val calendar = Calendar.getInstance(Locale("id"))
+        val mDay = if(day != 0) day else calendar.get(Calendar.DAY_OF_MONTH)
+        val mMonth = if(month != 0) month else calendar.get(Calendar.MONTH)
+        val mYear = if(year != 0) year else calendar.get(Calendar.YEAR)
+
+        val picker = DatePickerDialog(context, { _, pickYear, pickMonth, pickDay ->
+            day = pickDay
+            month = pickMonth
+            year = pickYear
+            val date = "$day-${month.plus(1)}-$year"
+            binding.edtTgl.setText(date)
+        }, mYear, mMonth, mDay)
+        picker.show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 }
