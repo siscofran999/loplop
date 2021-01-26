@@ -14,4 +14,6 @@
     <string name="label_min_age">Anda harus berusia diatas 18 tahun.</string>
     <string name="label_name_not_empty">Nama anda tidak boleh kosong.</string>
     <string name="label_born_date_not_empty">Tanggal lahir anda tidak boleh kosong.</string>
+    <string name="label_male">male</string>
+    <string name="label_female">female</string>
 </resources>

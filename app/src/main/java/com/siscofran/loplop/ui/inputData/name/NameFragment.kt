@@ -11,6 +11,8 @@ import androidx.fragment.app.Fragment
 import com.google.firebase.auth.FirebaseAuth
 import com.siscofran.loplop.R
 import com.siscofran.loplop.databinding.FragmentNameBinding
+import com.siscofran.loplop.ui.inputData.InputDataActivity.Companion.genderFragment
+import com.siscofran.loplop.ui.inputData.InputDataActivity.Companion.nameFragment
 import com.siscofran.loplop.ui.inputData.gender.GenderFragment
 import com.siscofran.loplop.utils.getAge
 import com.siscofran.loplop.utils.logi
@@ -44,7 +46,7 @@ class NameFragment : Fragment(), View.OnClickListener {
         day = bornDate[0].toInt()
         month = bornDate[1].toInt()
         year = bornDate[2].toInt()
-        val date = "$day-${month.plus(1)}-$year"
+        val date = "$day-$month-$year"
         if(date != ""){
             binding.edtTgl.setText(date)
         }
@@ -74,7 +76,7 @@ class NameFragment : Fragment(), View.OnClickListener {
                 view?.context?.saveName(name, tgl)
                 binding.edtLayoutTgl.isErrorEnabled = false
                 val ft = fragmentManager?.beginTransaction()
-                ft?.replace(R.id.fragment_input_data, GenderFragment(),"GenderFragment")?.addToBackStack("NameFragment")?.commit()
+                ft?.replace(R.id.fragment_input_data, GenderFragment(), genderFragment)?.addToBackStack(nameFragment)?.commit()
             }
         }
         if(name.isEmpty()){
@@ -88,6 +90,9 @@ class NameFragment : Fragment(), View.OnClickListener {
     private fun showDatePicker(context: Context) {
         val calendar = Calendar.getInstance(Locale("id"))
         val mDay = if(day != 0) day else calendar.get(Calendar.DAY_OF_MONTH)
+        if(month >= 12){
+            month--
+        }
         val mMonth = if(month != 0) month else calendar.get(Calendar.MONTH)
         val mYear = if(year != 0) year else calendar.get(Calendar.YEAR)
 

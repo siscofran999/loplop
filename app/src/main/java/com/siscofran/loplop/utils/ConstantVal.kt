@@ -30,7 +30,23 @@ fun Context.saveName(name: String, date: String) {
     pref.edit().putString("date", date).apply()
 }
 
+fun Context.saveGender(gender: String, interest: String) {
+    val pref = this.getSharedPreferences("profile", Context.MODE_PRIVATE)
+    pref.edit().putString("gender", gender).apply()
+    pref.edit().putString("interest", interest).apply()
+}
+
 fun Context.prefGetDate(): String{
     val pref = this.getSharedPreferences("profile", Context.MODE_PRIVATE)
     return pref.getString("date", "") ?: ""
+}
+
+fun Context.prefGetGender(): String{
+    val pref = this.getSharedPreferences("profile", Context.MODE_PRIVATE)
+    return pref.getString("gender", "") ?: ""
+}
+
+fun Context.prefGetInterest(): String{
+    val pref = this.getSharedPreferences("profile", Context.MODE_PRIVATE)
+    return pref.getString("interest", "") ?: ""
 }

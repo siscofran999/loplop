@@ -18,7 +18,7 @@ class InputDataActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val ft = supportFragmentManager.beginTransaction()
-        ft.replace(R.id.fragment_input_data, NameFragment(), "NameFragment").commit()
+        ft.replace(R.id.fragment_input_data, NameFragment(), nameFragment).commit()
     }
 
     companion object{
