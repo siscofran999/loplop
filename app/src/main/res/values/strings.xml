@@ -11,4 +11,7 @@
     <string name="label_wanita">Wanita</string>
     <string name="label_tertarik">Saya tertarik ...</string>
     <string name="label_min_photo">Masukan minimal 2 foto untuk melanjutkan</string>
+    <string name="label_min_age">Anda harus berusia diatas 18 tahun.</string>
+    <string name="label_name_not_empty">Nama anda tidak boleh kosong.</string>
+    <string name="label_born_date_not_empty">Tanggal lahir anda tidak boleh kosong.</string>
 </resources>

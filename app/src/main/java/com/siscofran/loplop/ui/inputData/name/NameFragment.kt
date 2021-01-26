@@ -12,6 +12,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.siscofran.loplop.R
 import com.siscofran.loplop.databinding.FragmentNameBinding
 import com.siscofran.loplop.ui.inputData.gender.GenderFragment
+import com.siscofran.loplop.utils.getAge
 import com.siscofran.loplop.utils.logi
 import com.siscofran.loplop.utils.prefGetDate
 import com.siscofran.loplop.utils.saveName
@@ -38,7 +39,15 @@ class NameFragment : Fragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         auth = FirebaseAuth.getInstance()
-
+        
+        val bornDate = view.context.prefGetDate().split("-")
+        day = bornDate[0].toInt()
+        month = bornDate[1].toInt()
+        year = bornDate[2].toInt()
+        val date = "$day-${month.plus(1)}-$year"
+        if(date != ""){
+            binding.edtTgl.setText(date)
+        }
         binding.edtName.setText(auth.currentUser?.displayName)
         binding.edtTgl.setOnClickListener(this)
         binding.include.btnNext.setOnClickListener(this)
@@ -55,14 +64,24 @@ class NameFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    @SuppressLint("CommitPrefEdits")
     private fun btnNextClicked() {
         val tgl = binding.edtTgl.text.toString()
         val name = binding.edtName.text.toString()
         if(name.isNotEmpty() && tgl.isNotEmpty()){
-            view?.context?.saveName(name, tgl)
-            val ft = fragmentManager?.beginTransaction()
-            ft?.replace(R.id.fragment_input_data, GenderFragment(),"GenderFragment")?.addToBackStack("NameFragment")?.commit()
+            if(getAge(year, month, day) < 18){
+                binding.edtLayoutTgl.error = getString(R.string.label_min_age)
+            }else{
+                view?.context?.saveName(name, tgl)
+                binding.edtLayoutTgl.isErrorEnabled = false
+                val ft = fragmentManager?.beginTransaction()
+                ft?.replace(R.id.fragment_input_data, GenderFragment(),"GenderFragment")?.addToBackStack("NameFragment")?.commit()
+            }
+        }
+        if(name.isEmpty()){
+            binding.edtLayoutName.error = getString(R.string.label_name_not_empty)
+        }
+        if(tgl.isEmpty()){
+            binding.edtLayoutTgl.error = getString(R.string.label_born_date_not_empty)
         }
     }
 
@@ -78,6 +97,11 @@ class NameFragment : Fragment(), View.OnClickListener {
             year = pickYear
             val date = "$day-${month.plus(1)}-$year"
             binding.edtTgl.setText(date)
+            if(getAge(year, month, day) < 18) {
+                binding.edtLayoutTgl.error = getString(R.string.label_min_age)
+            }else{
+                binding.edtLayoutTgl.isErrorEnabled = false
+            }
         }, mYear, mMonth, mDay)
         picker.show()
     }
