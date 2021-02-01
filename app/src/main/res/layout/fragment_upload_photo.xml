@@ -10,7 +10,7 @@
         android:id="@+id/ll"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dimen_24dp"
+        android:layout_marginTop="@dimen/dimen_16dp"
         android:layout_marginStart="@dimen/dimen_16dp"
         android:layout_marginEnd="@dimen/dimen_16dp"
         android:gravity="center_horizontal"
@@ -21,7 +21,7 @@
         <View
             android:id="@+id/progress_one"
             android:layout_width="80dp"
-            android:layout_height="7dp"
+            android:layout_height="5dp"
             android:background="@drawable/bg_rounded_10dp_9a"
             android:layout_marginEnd="@dimen/dimen_8dp"
             app:layout_constraintEnd_toStartOf="@+id/progress_two"
@@ -31,7 +31,7 @@
         <View
             android:id="@+id/progress_two"
             android:layout_width="80dp"
-            android:layout_height="7dp"
+            android:layout_height="5dp"
             android:background="@drawable/bg_rounded_10dp_9a"
             android:layout_marginEnd="@dimen/dimen_8dp"
             app:layout_constraintStart_toEndOf="@+id/progress_one"
@@ -40,7 +40,7 @@
         <View
             android:id="@+id/progress_three"
             android:layout_width="80dp"
-            android:layout_height="7dp"
+            android:layout_height="5dp"
             android:background="@drawable/bg_rounded_10dp_9a"
             android:layout_marginEnd="@dimen/dimen_8dp"
             app:layout_constraintEnd_toStartOf="@+id/progress_four"
@@ -49,7 +49,7 @@
         <View
             android:id="@+id/progress_four"
             android:layout_width="80dp"
-            android:layout_height="7dp"
+            android:layout_height="5dp"
             android:background="@drawable/bg_rounded_10dp_white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
@@ -126,6 +126,8 @@
         app:layout_constraintTop_toBottomOf="@+id/img_profile"
         app:layout_constraintStart_toEndOf="@+id/img_profile3"/>
 
-    <include layout="@layout/button_next" />
+    <include
+        android:id="@+id/include"
+        layout="@layout/button_next" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

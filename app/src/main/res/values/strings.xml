@@ -16,4 +16,7 @@
     <string name="label_born_date_not_empty">Tanggal lahir anda tidak boleh kosong.</string>
     <string name="label_male">male</string>
     <string name="label_female">female</string>
+    <string name="label_camera">Kamera</string>
+    <string name="label_gallery">Galeri</string>
+    <string name="label_unggah_foto_terbaik_anda">Unggah foto terbaik anda.</string>
 </resources>
