@@ -36,11 +36,15 @@ class GenderFragment : Fragment(), View.OnClickListener {
 
         gender = view.context.prefGetGender()
         interest = view.context.prefGetInterest()
+        if(gender == ""){
+            gender = getString(R.string.label_male)
+        }
+        if (interest == ""){
+            interest = getString(R.string.label_male)
+        }
         view.context.pickGender(gender)
         view.context.pickInterest(interest)
 
-        gender = getString(R.string.label_male)
-        interest = getString(R.string.label_male)
         binding.txvMale.setOnClickListener(this)
         binding.txvFemale.setOnClickListener(this)
         binding.imgInterestMale.setOnClickListener(this)
