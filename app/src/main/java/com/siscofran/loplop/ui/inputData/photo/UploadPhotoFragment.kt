@@ -229,6 +229,11 @@ class UploadPhotoFragment : Fragment() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+    }
+
     companion object{
         private const val CAMERA_PERMISSION = 9999
         private const val IMAGE_GALLERY_RESULT = 888
