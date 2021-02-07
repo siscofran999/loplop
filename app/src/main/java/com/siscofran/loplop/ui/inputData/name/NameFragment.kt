@@ -42,13 +42,16 @@ class NameFragment : Fragment(), View.OnClickListener {
         super.onViewCreated(view, savedInstanceState)
         auth = FirebaseAuth.getInstance()
         
-        val bornDate = view.context.prefGetDate().split("-")
-        day = bornDate[0].toInt()
-        month = bornDate[1].toInt()
-        year = bornDate[2].toInt()
-        val date = "$day-$month-$year"
-        if(date != ""){
-            binding.edtTgl.setText(date)
+        val bornDate = view.context.prefGetDate()
+        if(bornDate != ""){
+            val mBornDate = bornDate.split("-")
+            day = mBornDate[0].toInt()
+            month = mBornDate[1].toInt()
+            year = mBornDate[2].toInt()
+            val date = "$day-$month-$year"
+            if(date != ""){
+                binding.edtTgl.setText(date)
+            }
         }
         binding.edtName.setText(auth.currentUser?.displayName)
         binding.edtTgl.setOnClickListener(this)
