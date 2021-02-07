@@ -6,6 +6,7 @@
     <string name="label_nama_saya">Nama saya ...</string>
     <string name="label_saya_lahir">Saya lahir ...</string>
     <string name="label_btn_lanjutkan">Lanjutkan</string>
+    <string name="label_btn_lanjutkan_limit">Lanjutkan(%s/%s)</string>
     <string name="label_saya">Saya ...</string>
     <string name="label_pria">Pria</string>
     <string name="label_wanita">Wanita</string>

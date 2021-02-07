@@ -10,7 +10,7 @@
     android:gravity="center"
     android:padding="@dimen/dimen_8dp"
     app:cornerRadius="@dimen/dimen_16dp"
-    app:backgroundTint="@color/white"
+    app:backgroundTint="@color/button_state_colors"
     android:layout_marginStart="@dimen/dimen_36dp"
     android:layout_marginEnd="@dimen/dimen_36dp"
     android:layout_marginBottom="@dimen/dimen_16dp"

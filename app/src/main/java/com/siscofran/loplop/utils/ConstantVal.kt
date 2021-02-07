@@ -36,6 +36,11 @@ fun Context.saveGender(gender: String, interest: String) {
     pref.edit().putString("interest", interest).apply()
 }
 
+fun Context.saveImage(position: Int, image: String) {
+    val pref = this.getSharedPreferences("profile", Context.MODE_PRIVATE)
+    pref.edit().putString("image$position", image).apply()
+}
+
 fun Context.prefGetDate(): String{
     val pref = this.getSharedPreferences("profile", Context.MODE_PRIVATE)
     return pref.getString("date", "") ?: ""
@@ -50,3 +55,24 @@ fun Context.prefGetInterest(): String{
     val pref = this.getSharedPreferences("profile", Context.MODE_PRIVATE)
     return pref.getString("interest", "") ?: ""
 }
+
+fun Context.prefGetImage1(): String{
+    val pref = this.getSharedPreferences("profile", Context.MODE_PRIVATE)
+    return pref.getString("image1", "") ?: ""
+}
+
+fun Context.prefGetImage2(): String{
+    val pref = this.getSharedPreferences("profile", Context.MODE_PRIVATE)
+    return pref.getString("image2", "") ?: ""
+}
+
+fun Context.prefGetImage3(): String{
+    val pref = this.getSharedPreferences("profile", Context.MODE_PRIVATE)
+    return pref.getString("image3", "") ?: ""
+}
+
+fun Context.prefGetImage4(): String{
+    val pref = this.getSharedPreferences("profile", Context.MODE_PRIVATE)
+    return pref.getString("image4", "") ?: ""
+}
+

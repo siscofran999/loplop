@@ -45,8 +45,8 @@
         android:gravity="center"
         style="@style/White14"
         android:text="@string/label_camera"
-        app:layout_constraintBottom_toBottomOf="@+id/txv_gallery"
-        app:layout_constraintStart_toEndOf="@+id/txv_gallery"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_gallery"
+        app:layout_constraintStart_toEndOf="@+id/btn_gallery"
         app:layout_constraintTop_toTopOf="@+id/btn_gallery" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

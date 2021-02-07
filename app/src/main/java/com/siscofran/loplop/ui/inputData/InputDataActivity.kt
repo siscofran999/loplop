@@ -25,5 +25,6 @@ class InputDataActivity : AppCompatActivity() {
         const val nameFragment = "NameFragment"
         const val genderFragment = "GenderFragment"
         const val photoFragment = "PhotoFragment"
+        const val hobbyFragment = "HobbyFragment"
     }
 }
