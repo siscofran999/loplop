@@ -95,6 +95,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_rounded_8dp_white"
+            android:textColor="@color/black"
             style="@style/InputSingleLine" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -128,6 +129,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/bg_rounded_8dp_white"
             android:focusable="false"
+            android:textColor="@color/black"
             style="@style/InputSingleLine" />
 
     </com.google.android.material.textfield.TextInputLayout>

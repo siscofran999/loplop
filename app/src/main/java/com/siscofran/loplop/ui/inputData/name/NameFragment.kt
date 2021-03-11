@@ -1,6 +1,5 @@
 package com.siscofran.loplop.ui.inputData.name
 
-import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.content.Context
 import android.os.Bundle
@@ -53,6 +52,7 @@ class NameFragment : Fragment(), View.OnClickListener {
                 binding.edtTgl.setText(date)
             }
         }
+
         binding.edtName.setText(auth.currentUser?.displayName)
         binding.edtTgl.setOnClickListener(this)
         binding.include.btnNext.setOnClickListener(this)
@@ -72,11 +72,12 @@ class NameFragment : Fragment(), View.OnClickListener {
     private fun btnNextClicked() {
         val tgl = binding.edtTgl.text.toString()
         val name = binding.edtName.text.toString()
+        val email = auth.currentUser?.email.toString()
         if(name.isNotEmpty() && tgl.isNotEmpty()){
             if(getAge(year, month, day) < 18){
                 binding.edtLayoutTgl.error = getString(R.string.label_min_age)
             }else{
-                view?.context?.saveName(name, tgl)
+                view?.context?.saveName(name, tgl, email)
                 binding.edtLayoutTgl.isErrorEnabled = false
                 val ft = fragmentManager?.beginTransaction()
                 ft?.replace(R.id.fragment_input_data, GenderFragment(), genderFragment)?.addToBackStack(nameFragment)?.commit()
@@ -105,9 +106,9 @@ class NameFragment : Fragment(), View.OnClickListener {
             year = pickYear
             val date = "$day-${month.plus(1)}-$year"
             binding.edtTgl.setText(date)
-            if(getAge(year, month, day) < 18) {
+            if (getAge(year, month, day) < 18) {
                 binding.edtLayoutTgl.error = getString(R.string.label_min_age)
-            }else{
+            } else {
                 binding.edtLayoutTgl.isErrorEnabled = false
             }
         }, mYear, mMonth, mDay)

@@ -2,6 +2,7 @@ package com.siscofran.loplop.ui.inputData.photo
 
 import android.Manifest
 import android.app.Activity
+import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -15,36 +16,36 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.siscofran.loplop.R
 import com.siscofran.loplop.databinding.BsUploadImageBinding
 import com.siscofran.loplop.databinding.FragmentUploadPhotoBinding
-import com.siscofran.loplop.ui.inputData.InputDataActivity
 import com.siscofran.loplop.ui.inputData.InputDataActivity.Companion.hobbyFragment
 import com.siscofran.loplop.ui.inputData.InputDataActivity.Companion.photoFragment
-import com.siscofran.loplop.ui.inputData.gender.GenderFragment
 import com.siscofran.loplop.ui.inputData.hobby.HobbyFragment
 import com.siscofran.loplop.utils.*
 import java.io.File
-import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.OutputStream
+
 
 class UploadPhotoFragment : Fragment() {
 
     private var _binding: FragmentUploadPhotoBinding? = null
     private val binding get() = _binding!!
     private var position = 0
-    private var currentImagePath = ""
     private var totalImage = 0
+    private var firstLaunch1 = true
+    private var firstLaunch2 = true
+    private var firstLaunch3 = true
+    private var firstLaunch4 = true
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
         _binding = FragmentUploadPhotoBinding.inflate(inflater, container, false)
@@ -64,24 +65,40 @@ class UploadPhotoFragment : Fragment() {
         binding.include.btnNext.isEnabled = false
         binding.include.btnNext.text = getString(R.string.label_btn_lanjutkan_limit, "0", "2")
 
-        val image1 = view.context.prefGetImage1()
-        val image2 = view.context.prefGetImage2()
-        val image3 = view.context.prefGetImage3()
-        val image4 = view.context.prefGetImage4()
+        val image1 = view.context.prefGetImage(1)
+        val image2 = view.context.prefGetImage(2)
+        val image3 = view.context.prefGetImage(3)
+        val image4 = view.context.prefGetImage(4)
 
         if(image1 != ""){
+            if(firstLaunch1){
+                firstLaunch1 = false
+                totalImage += 1
+            }
             position = 1
             setImageByPosition(Uri.parse(image1))
         }
         if(image2 != ""){
+            if(firstLaunch2){
+                firstLaunch2 = false
+                totalImage += 1
+            }
             position = 2
             setImageByPosition(Uri.parse(image2))
         }
         if(image3 != ""){
+            if(firstLaunch3){
+                firstLaunch3 = false
+                totalImage += 1
+            }
             position = 3
             setImageByPosition(Uri.parse(image3))
         }
         if(image4 != ""){
+            if(firstLaunch4){
+                firstLaunch4 = false
+                totalImage += 1
+            }
             position = 4
             setImageByPosition(Uri.parse(image4))
         }
@@ -91,6 +108,9 @@ class UploadPhotoFragment : Fragment() {
         position = mPosition
         when(view.id){
             R.id.img_profile, R.id.img_profile2, R.id.img_profile3, R.id.img_profile4 -> {
+                if (view.context?.prefGetImage(position) == "") {
+                    totalImage += 1
+                }
                 if (!checkPermissionGranted()) {
                     requestPermissions(arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE), CAMERA_PERMISSION)
                 } else {
@@ -134,29 +154,16 @@ class UploadPhotoFragment : Fragment() {
                     setImageByPosition(dataImage)
                 }
                 IMAGE_CAMERA_RESULT -> {
-                    val photos = MediaStore.Images.Media.getBitmap(view!!.context.contentResolver, Uri.fromFile(File(currentImagePath)))
-                    if(photos != null){
-                        val fileDir = File(Environment.getExternalStorageDirectory(), "/Loplop")
-                        if (!fileDir.exists()) {
-                            fileDir.mkdirs()
-                        }
-                        val fileName = File(fileDir, "${getString(R.string.app_name)}${System.currentTimeMillis()}.jpeg")
-                        try {
-                            val outputStream = FileOutputStream(fileName)
-                            photos.compress(Bitmap.CompressFormat.JPEG, 90, outputStream)
-                            outputStream.flush()
-                            outputStream.close()
-                        }catch (e : FileNotFoundException){
-                            loge("${e.printStackTrace()}")
-                        }
-                        setImageByPosition(Uri.fromFile(fileName))
-                    }
+                    val dataImage = data?.extras?.get("data") as Bitmap
+                    val uriImage = saveImage(view!!.context, dataImage, getString(R.string.app_name), "${getString(R.string.app_name)}${System.currentTimeMillis()}")
+                    setImageByPosition(uriImage)
                 }
             }
         }
     }
 
     private fun setImageByPosition(dataImage: Uri?) {
+        logi("uri -> ${dataImage?.lastPathSegment}")
         when(position){
             1 -> {
                 Glide.with(this@UploadPhotoFragment).load(dataImage).circleCrop()
@@ -175,11 +182,8 @@ class UploadPhotoFragment : Fragment() {
                         .into(binding.imgProfile4)
             }
         }
-        totalImage += 1
-        logi("masukk $totalImage")
         view?.context?.saveImage(position, dataImage.toString())
         if(totalImage >= 2){
-            logi("masukk takk $totalImage")
             binding.include.btnNext.isEnabled = true
         }
         binding.include.btnNext.text = getString(R.string.label_btn_lanjutkan_limit, totalImage.toString(), "2")
@@ -194,31 +198,14 @@ class UploadPhotoFragment : Fragment() {
     private fun getImageFromCamera() {
         val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         if (cameraIntent.resolveActivity(view!!.context.packageManager) != null){
-            val imageFile = getImageFile()
-            if(imageFile != null){
-                val imageUri = FileProvider.getUriForFile(view!!.context, "com.siscofran.loplop.fileprovider", imageFile)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
-                } else {
-                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageFile))
-                }
-                startActivityForResult(cameraIntent, IMAGE_CAMERA_RESULT)
-            }
+            startActivityForResult(cameraIntent, IMAGE_CAMERA_RESULT)
         }
     }
 
-    private fun getImageFile(): File {
-        val fileDir = File(Environment.getExternalStorageDirectory(), "/Loplop")
-        val imageName = "${getString(R.string.app_name)}${System.currentTimeMillis()}"
-        val imageFile = File.createTempFile(imageName, ".jpg", fileDir)
-        currentImagePath = imageFile.absolutePath
-        return imageFile
-    }
-
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
+            requestCode: Int,
+            permissions: Array<out String>,
+            grantResults: IntArray
     ) {
         if(requestCode == CAMERA_PERMISSION){
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED){

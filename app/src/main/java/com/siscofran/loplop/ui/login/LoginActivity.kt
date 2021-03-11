@@ -13,6 +13,8 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.siscofran.loplop.R
 import com.siscofran.loplop.databinding.ActivityLoginBinding
 import com.siscofran.loplop.ui.inputData.InputDataActivity
+import com.siscofran.loplop.ui.main.MainActivity
+import com.siscofran.loplop.utils.logi
 
 class LoginActivity : AppCompatActivity() {
 
@@ -33,7 +35,7 @@ class LoginActivity : AppCompatActivity() {
         val user = mAuth.currentUser
 
         if(user != null){
-            val intent = Intent(this, InputDataActivity::class.java)
+            val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
             finish()
         }else{

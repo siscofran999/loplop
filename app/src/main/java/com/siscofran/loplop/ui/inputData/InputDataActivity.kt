@@ -3,6 +3,7 @@ package com.siscofran.loplop.ui.inputData
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
+import com.google.firebase.auth.FirebaseAuth
 import com.siscofran.loplop.R
 import com.siscofran.loplop.databinding.ActivityInputDataBinding
 import com.siscofran.loplop.ui.inputData.name.NameFragment
