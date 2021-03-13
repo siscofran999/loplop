@@ -2,7 +2,7 @@
     <!-- Base application theme. -->
     <style name="Theme.Loplop" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_200</item>
+        <item name="colorPrimary">@color/purple_89</item>
         <item name="colorPrimaryVariant">@color/purple_7C</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->

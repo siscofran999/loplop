@@ -21,4 +21,5 @@
     <string name="label_camera">Kamera</string>
     <string name="label_gallery">Galeri</string>
     <string name="label_unggah_foto_terbaik_anda">Unggah foto terbaik anda.</string>
+    <string name="label_chat">Chat</string>
 </resources>
