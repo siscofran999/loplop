@@ -2,14 +2,11 @@ package com.siscofran.loplop.ui.inputData.photo
 
 import android.Manifest
 import android.app.Activity
-import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
@@ -26,9 +23,9 @@ import com.siscofran.loplop.ui.inputData.InputDataActivity.Companion.hobbyFragme
 import com.siscofran.loplop.ui.inputData.InputDataActivity.Companion.photoFragment
 import com.siscofran.loplop.ui.inputData.hobby.HobbyFragment
 import com.siscofran.loplop.utils.*
-import java.io.File
-import java.io.FileOutputStream
-import java.io.OutputStream
+import com.siscofran.loplop.utils.ConstantVal.Companion.CAMERA_PERMISSION
+import com.siscofran.loplop.utils.ConstantVal.Companion.IMAGE_CAMERA_RESULT
+import com.siscofran.loplop.utils.ConstantVal.Companion.IMAGE_GALLERY_RESULT
 
 
 class UploadPhotoFragment : Fragment() {
@@ -219,11 +216,5 @@ class UploadPhotoFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
-    }
-
-    companion object{
-        private const val CAMERA_PERMISSION = 9999
-        private const val IMAGE_GALLERY_RESULT = 888
-        private const val IMAGE_CAMERA_RESULT = 999
     }
 }

@@ -22,4 +22,5 @@
     <string name="label_gallery">Galeri</string>
     <string name="label_unggah_foto_terbaik_anda">Unggah foto terbaik anda.</string>
     <string name="label_chat">Chat</string>
+    <string name="label_name_age">%s, %sth</string>
 </resources>
