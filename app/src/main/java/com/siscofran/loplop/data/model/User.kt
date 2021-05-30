@@ -7,5 +7,7 @@ data class User(
         val interest: String = "",
         val photo: ArrayList<String> = ArrayList(),
         val hobby: ArrayList<String> = ArrayList(),
-        val email: String = ""
+        val email: String = "",
+        val key: String? = "",
+        val urlPhoto: String? = ""
 )

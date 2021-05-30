@@ -14,29 +14,7 @@ import com.siscofran.loplop.databinding.ItemSwipestackBinding
 import com.siscofran.loplop.utils.getAge
 import com.siscofran.loplop.utils.logi
 
-class MainAdapter(val adapterOnClick : (Int) -> Unit, private val users: ArrayList<User>, private val usersPhoto: ArrayList<String>): BaseAdapter() {
-
-//    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainViewHolder {
-//        val binding = ItemSwipestackBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-//        return MainViewHolder(binding)
-//    }
-//
-//    override fun onBindViewHolder(holder: MainViewHolder, position: Int) {
-//        holder.bind(users[position])
-//    }
-//
-//    override fun getItemCount(): Int = users.size
-
-    inner class MainViewHolder(private val binding: ItemSwipestackBinding): RecyclerView.ViewHolder(binding.root) {
-
-        fun bind(user: User) {
-            val dateBorn = user.dateBorn.split("-")
-            val age = getAge(dateBorn[0].toInt(), dateBorn[1].toInt(), dateBorn[2].toInt())
-            binding.txvNameAge.text = String.format(itemView.context.getString(R.string.label_name_age), user.name, age)
-            Glide.with(itemView.context).load(usersPhoto).into(binding.imgUser)
-
-        }
-    }
+class MainAdapter(val adapterOnClick : (String) -> Unit, private val users: ArrayList<User>): BaseAdapter() {
 
     override fun getCount(): Int = users.size
 
@@ -51,9 +29,12 @@ class MainAdapter(val adapterOnClick : (Int) -> Unit, private val users: ArrayLi
             val dateBorn = this.dateBorn.split("-")
             val age = getAge(dateBorn[2].toInt(), dateBorn[1].toInt(), dateBorn[0].toInt())
             binding.txvNameAge.text = parent.context.getString(R.string.label_name_age, this.name, age.toString())
-            logi("usersPhoto -> ${usersPhoto[position]}")
-            Glide.with(parent.context).load(usersPhoto[position]).transform(RoundedCorners(parent.context.resources.getDimension(R.dimen.dimen_16dp)
+            logi("usersPhoto -> ${this.key}")
+            Glide.with(parent.context).load(this.urlPhoto).transform(RoundedCorners(parent.context.resources.getDimension(R.dimen.dimen_16dp)
                 .toInt())).into(binding.imgUser)
+            binding.imgUser.setOnClickListener {
+                adapterOnClick(this.key.toString())
+            }
         }
         return binding.root
     }

@@ -37,7 +37,6 @@ class MainActivity : AppCompatActivity(), SwipeStack.SwipeStackListener {
     private lateinit var database: DatabaseReference
     private lateinit var storage: FirebaseStorage
     private var users: ArrayList<User> = ArrayList()
-    private var usersProfile: ArrayList<String> = ArrayList()
     private lateinit var adapter: MainAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,12 +72,12 @@ class MainActivity : AppCompatActivity(), SwipeStack.SwipeStackListener {
         }
 
         fillWithTestData()
-        adapter = MainAdapter({item -> doClick(item)}, users, usersProfile)
+        adapter = MainAdapter({item -> doClick(item)}, users)
         binding.swipeStack.adapter = adapter
     }
 
-    private fun doClick(item: Int) {
-
+    private fun doClick(key: String) {
+        logi("key -> $key")
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -118,10 +117,10 @@ class MainActivity : AppCompatActivity(), SwipeStack.SwipeStackListener {
                         val mUser = user.getValue(User::class.java)
                         logi("masukk -> $mUser")
                         if (mUser != null) {
-                            users.add(mUser) // gs://loplop-686d0.appspot.com/profile/FaceApp_1611210262526.jpg
                             val gsReference = storage.getReferenceFromUrl("gs://loplop-686d0.appspot.com/${mUser.photo[0]}")
                             gsReference.downloadUrl.addOnCompleteListener {
-                                usersProfile.add(it.result.toString())
+                            users.add(User(mUser.name, mUser.dateBorn, mUser.gender, mUser.interest,
+                                mUser.photo, mUser.hobby, mUser.email, user.key, it.result.toString()))
                                 adapter.notifyDataSetChanged()
                             }.addOnFailureListener { exception ->
                                 val errorCode = (exception as StorageException).errorCode
