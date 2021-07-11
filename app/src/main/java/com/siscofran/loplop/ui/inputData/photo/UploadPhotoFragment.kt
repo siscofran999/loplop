@@ -4,16 +4,16 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.siscofran.loplop.R
@@ -24,8 +24,8 @@ import com.siscofran.loplop.ui.inputData.InputDataActivity.Companion.photoFragme
 import com.siscofran.loplop.ui.inputData.hobby.HobbyFragment
 import com.siscofran.loplop.utils.*
 import com.siscofran.loplop.utils.ConstantVal.Companion.CAMERA_PERMISSION
-import com.siscofran.loplop.utils.ConstantVal.Companion.IMAGE_CAMERA_RESULT
 import com.siscofran.loplop.utils.ConstantVal.Companion.IMAGE_GALLERY_RESULT
+import io.fotoapparat.selector.*
 
 
 class UploadPhotoFragment : Fragment() {
@@ -40,9 +40,9 @@ class UploadPhotoFragment : Fragment() {
     private var firstLaunch4 = true
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
         _binding = FragmentUploadPhotoBinding.inflate(inflater, container, false)
@@ -99,30 +99,33 @@ class UploadPhotoFragment : Fragment() {
             position = 4
             setImageByPosition(Uri.parse(image4))
         }
+
     }
 
     private fun onClick(view: View, mPosition: Int = 0) {
         position = mPosition
         when(view.id){
             R.id.img_profile, R.id.img_profile2, R.id.img_profile3, R.id.img_profile4 -> {
-                if (view.context?.prefGetImage(position) == "") {
-                    totalImage += 1
-                }
-                if (!checkPermissionGranted()) {
-                    requestPermissions(arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE), CAMERA_PERMISSION)
+                if (!checkPermissionGranted(requireContext())) {
+                    requestPermissions(
+                        arrayOf(
+                            Manifest.permission.CAMERA,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        ), CAMERA_PERMISSION
+                    )
                 } else {
+                    logi("totalImageeee -> $totalImage")
                     showDialog()
                 }
             }
             R.id.include -> {
                 val ft = fragmentManager?.beginTransaction()
-                ft?.replace(R.id.fragment_input_data, HobbyFragment(), hobbyFragment)?.addToBackStack(photoFragment)?.commit()
+                ft?.replace(R.id.fragment_input_data, HobbyFragment(), hobbyFragment)
+                    ?.addToBackStack(
+                        photoFragment
+                    )?.commit()
             }
         }
-    }
-
-    private fun checkPermissionGranted() : Boolean {
-        return ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED //permission already granted
     }
 
     private fun showDialog() {
@@ -131,7 +134,10 @@ class UploadPhotoFragment : Fragment() {
         bs.setContentView(bsView.root)
 
         bsView.btnCamera.setOnClickListener {
-            getImageFromCamera()
+            if(activity != null){
+                val dialog = CameraView()
+                dialog.show(activity!!.supportFragmentManager, "")
+            }
             bs.dismiss()
         }
         bsView.btnGallery.setOnClickListener {
@@ -150,40 +156,43 @@ class UploadPhotoFragment : Fragment() {
                     val dataImage = data?.data
                     setImageByPosition(dataImage)
                 }
-                IMAGE_CAMERA_RESULT -> {
-                    val dataImage = data?.extras?.get("data") as Bitmap
-                    val uriImage = saveImage(view!!.context, dataImage, getString(R.string.app_name), "${getString(R.string.app_name)}${System.currentTimeMillis()}")
-                    setImageByPosition(uriImage)
-                }
             }
         }
     }
 
-    private fun setImageByPosition(dataImage: Uri?) {
+    fun setImageByPosition(dataImage: Uri?) {
+        if (view?.context?.prefGetImage(position) == "") {
+            totalImage += 1
+        }
+        logi("totalImage -> $totalImage")
         logi("uri -> ${dataImage?.lastPathSegment}")
         when(position){
             1 -> {
                 Glide.with(this@UploadPhotoFragment).load(dataImage).circleCrop()
-                        .into(binding.imgProfile)
+                    .into(binding.imgProfile)
             }
             2 -> {
                 Glide.with(this@UploadPhotoFragment).load(dataImage).circleCrop()
-                        .into(binding.imgProfile2)
+                    .into(binding.imgProfile2)
             }
             3 -> {
                 Glide.with(this@UploadPhotoFragment).load(dataImage).circleCrop()
-                        .into(binding.imgProfile3)
+                    .into(binding.imgProfile3)
             }
             4 -> {
                 Glide.with(this@UploadPhotoFragment).load(dataImage).circleCrop()
-                        .into(binding.imgProfile4)
+                    .into(binding.imgProfile4)
             }
         }
         view?.context?.saveImage(position, dataImage.toString())
         if(totalImage >= 2){
             binding.include.btnNext.isEnabled = true
         }
-        binding.include.btnNext.text = getString(R.string.label_btn_lanjutkan_limit, totalImage.toString(), "2")
+        binding.include.btnNext.text = getString(
+            R.string.label_btn_lanjutkan_limit,
+            totalImage.toString(),
+            "2"
+        )
     }
 
     private fun getImageFromGallery() {
@@ -192,17 +201,10 @@ class UploadPhotoFragment : Fragment() {
         startActivityForResult(intent, IMAGE_GALLERY_RESULT)
     }
 
-    private fun getImageFromCamera() {
-        val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        if (cameraIntent.resolveActivity(view!!.context.packageManager) != null){
-            startActivityForResult(cameraIntent, IMAGE_CAMERA_RESULT)
-        }
-    }
-
     override fun onRequestPermissionsResult(
-            requestCode: Int,
-            permissions: Array<out String>,
-            grantResults: IntArray
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
     ) {
         if(requestCode == CAMERA_PERMISSION){
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED){

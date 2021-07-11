@@ -8,6 +8,10 @@ data class User(
         val photo: ArrayList<String> = ArrayList(),
         val hobby: ArrayList<String> = ArrayList(),
         val email: String = "",
+        val latLong: String? = ""
+)
+
+data class Data(
         val key: String? = "",
         val urlPhoto: String? = ""
 )

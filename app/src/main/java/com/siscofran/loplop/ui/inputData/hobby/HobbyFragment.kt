@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
@@ -18,6 +19,8 @@ import com.siscofran.loplop.databinding.ItemHobbyBinding
 import com.siscofran.loplop.ui.main.MainActivity
 import com.siscofran.loplop.utils.*
 import java.io.File
+import java.util.*
+import kotlin.collections.ArrayList
 
 class HobbyFragment : Fragment(), View.OnClickListener {
 
@@ -125,6 +128,7 @@ class HobbyFragment : Fragment(), View.OnClickListener {
             val photoUrl = ArrayList<String>()
             val hobby = view.context.prefGetHobby()
             val email = view.context.prefGetEmail()
+            val latLong = view.context.prefGetLocationTracking()
             for (i in 0..3) {
                 val photo = view.context.prefGetImage(i.plus(1))
                 if (photo != "") {
@@ -132,31 +136,32 @@ class HobbyFragment : Fragment(), View.OnClickListener {
                     photoLocation.add(photo)
                     val file = Uri.fromFile(File(getPath(view.context,Uri.parse(photo))))
                     val riversRef = imgRef.child("profile/${file.lastPathSegment}")
-                    val uploadTask = riversRef.putFile(file)
-
-                    uploadTask.addOnFailureListener {
-                        loge("error -> ${it.message}")
-                    }.addOnSuccessListener {
-                        if(it.task.isSuccessful){
-                            logi("masukk success")
-                            photoUrl.add(it.metadata?.path.toString())
-                            logi("photoLoc -> ${photoLocation.size} == photoUrl -> ${photoUrl.size}")
-                            if(photoLocation.size == photoUrl.size){
-                                logi("masukk sama")
-                                val mUser = User(name, date, gender, interest, photoUrl, ArrayList(hobby), email)
-                                user.child(currentUserId).setValue(mUser).addOnCompleteListener {
-                                    view.context.toast("Selamat Datang $name")
-                                    val intent = Intent(activity, MainActivity::class.java)
-                                    startActivity(intent)
-                                    activity?.finish()
+                    if(photoUrl != null){
+                        val uploadTask = riversRef.putFile(photoLocation[i].toUri())
+                        uploadTask.addOnFailureListener {
+                            loge("error -> ${it.message}")
+                        }.addOnSuccessListener {
+                            if(it.task.isSuccessful){
+                                logi("masukk success")
+                                photoUrl.add(it.metadata?.path.toString())
+                                logi("photoLoc -> ${photoLocation.size} == photoUrl -> ${photoUrl.size}")
+                                if(photoLocation.size == photoUrl.size){
+                                    logi("masukk sama")
+                                    val mUser = User(name, date, gender, interest, photoUrl, ArrayList(hobby), email, latLong)
+                                    user.child(currentUserId).setValue(mUser).addOnCompleteListener {
+                                        view.context.toast("Selamat Datang $name")
+                                        val intent = Intent(activity, MainActivity::class.java)
+                                        startActivity(intent)
+                                        activity?.finish()
+                                    }
+                                }else{
+                                    logi("tidak masukk sama")
                                 }
-                            }else{
-                                logi("tidak masukk sama")
                             }
                         }
                     }
                 }else{
-                    logi("masukk url else $i -> $photo")
+                    logi("masukk url else $ -> $photo")
                 }
             }
         }

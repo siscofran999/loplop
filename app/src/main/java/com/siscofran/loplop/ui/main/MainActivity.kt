@@ -1,43 +1,49 @@
 package com.siscofran.loplop.ui.main
 
-import android.Manifest
-import android.annotation.SuppressLint
-import android.content.pm.PackageManager
+import android.content.Intent
 import android.os.Bundle
-import android.os.Looper
+import android.view.View
+import android.view.animation.LinearInterpolator
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import com.google.android.gms.location.*
-import com.google.android.gms.tasks.OnFailureListener
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageException
-import com.google.firebase.storage.StorageReference
-import com.google.firebase.storage.ktx.storage
+import com.siscofran.loplop.R
+import com.siscofran.loplop.data.model.Data
 import com.siscofran.loplop.data.model.User
 import com.siscofran.loplop.databinding.ActivityMainBinding
-import com.siscofran.loplop.utils.ConstantVal.Companion.LOCATION_PERMISSION
+import com.siscofran.loplop.ui.inputData.InputDataActivity
+import com.siscofran.loplop.ui.login.LoginActivity
 import com.siscofran.loplop.utils.loge
 import com.siscofran.loplop.utils.logi
-import com.siscofran.loplop.utils.saveLocationTracking
 import com.siscofran.loplop.utils.toast
-import link.fls.swipestack.SwipeStack
+import com.yuyakaido.android.cardstackview.*
+import java.io.FileNotFoundException
+import java.util.*
+import kotlin.collections.ArrayList
 
 
-class MainActivity : AppCompatActivity(), SwipeStack.SwipeStackListener {
+class MainActivity : AppCompatActivity(), CardStackListener {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 //     LocationCallback - Called when FusedLocationProviderClient has a new Location.
-    private lateinit var locationCallback: LocationCallback
     private lateinit var mAuth: FirebaseAuth
     private var currentUserId: String = ""
     private lateinit var database: DatabaseReference
     private lateinit var storage: FirebaseStorage
     private var users: ArrayList<User> = ArrayList()
+    private var datas: ArrayList<Data> = ArrayList()
     private lateinit var adapter: MainAdapter
+    private var isLogin = false
+    private lateinit var googleSignInClient: GoogleSignInClient
+
+    private val manager by lazy { CardStackLayoutManager(this, this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,108 +52,177 @@ class MainActivity : AppCompatActivity(), SwipeStack.SwipeStackListener {
 
         database = FirebaseDatabase.getInstance().getReference("users")
         storage = FirebaseStorage.getInstance()
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         mAuth = FirebaseAuth.getInstance()
-        currentUserId = mAuth.currentUser?.uid.toString()
+        val currentUser = mAuth.currentUser
+        currentUserId = currentUser?.uid.toString()
+        isLogin = currentUserId != "null"
         logi("masukk userId -> $currentUserId")
+        logi("masukk isLogin -> $isLogin")
 
-        locationCallback = object : LocationCallback(){
-            override fun onLocationResult(locationResult: LocationResult) {
-                super.onLocationResult(locationResult)
-                val lat = locationResult.lastLocation.latitude.toString()
-                val long = locationResult.lastLocation.longitude.toString()
-                logi("masukk lat -> $lat")
-                logi("masukk long -> $long")
-                if(lat != "" && long != ""){
-                    saveLocationTracking("$lat,$long")
-                    fusedLocationProviderClient.removeLocationUpdates(locationCallback)
-                }
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
+
+        if(isLogin && currentUser != null){
+            Glide.with(this).load(currentUser.photoUrl).transform(
+                RoundedCorners(resources.getDimension(R.dimen.dimen_16dp).toInt())).into(binding.imgProfile)
+        }else{
+            Glide.with(this).load(R.drawable.ic_person).transform(
+                RoundedCorners(resources.getDimension(R.dimen.dimen_16dp).toInt())).into(binding.imgProfile)
+        }
+        fillWithTestData()
+        manager.setStackFrom(StackFrom.None)
+        manager.setVisibleCount(3)
+        manager.setTranslationInterval(8.0f)
+        manager.setScaleInterval(0.95f)
+        manager.setSwipeThreshold(0.3f)
+        manager.setMaxDegree(20.0f)
+        manager.setDirections(Direction.HORIZONTAL)
+        manager.setCanScrollHorizontal(true)
+        manager.setCanScrollVertical(true)
+        manager.setSwipeableMethod(SwipeableMethod.AutomaticAndManual)
+        manager.setOverlayInterpolator(LinearInterpolator())
+        binding.swipeStack.layoutManager = manager
+        adapter = MainAdapter({ item -> doClick(item) }, users, datas)
+        binding.swipeStack.adapter = adapter
+
+        binding.imgProfile.setOnClickListener {
+            if(isLogin){
+                logOut()
+            }else{
+                startActivity(Intent(this, LoginActivity::class.java))
+                finish()
             }
         }
+    }
 
-        if(!foregroundPermissionApproved()){
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION)
-        }else{
-            getCurrentLocation()
+    private fun logOut() {
+        mAuth.signOut()
+        googleSignInClient.signOut().addOnCompleteListener {
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
         }
-
-        fillWithTestData()
-        adapter = MainAdapter({item -> doClick(item)}, users)
-        binding.swipeStack.adapter = adapter
     }
 
     private fun doClick(key: String) {
         logi("key -> $key")
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode == LOCATION_PERMISSION && grantResults.isNotEmpty()){
-            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                getCurrentLocation()
-            }else{
-                toast("Permission Denied")
-            }
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun getCurrentLocation(){
-        val locationRequest = LocationRequest.create().apply {
-            interval = 10000
-            fastestInterval = 3000
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        }
-        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
-    }
-
-    private fun foregroundPermissionApproved(): Boolean {
-        return PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-        )
-    }
-
     private fun fillWithTestData() {
-        val userListener = object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val dataUsers = snapshot.children
-                for (user in dataUsers){
-                    if(user.key != currentUserId){
-                        val mUser = user.getValue(User::class.java)
-                        logi("masukk -> $mUser")
-                        if (mUser != null) {
-                            val gsReference = storage.getReferenceFromUrl("gs://loplop-686d0.appspot.com/${mUser.photo[0]}")
-                            gsReference.downloadUrl.addOnCompleteListener {
-                            users.add(User(mUser.name, mUser.dateBorn, mUser.gender, mUser.interest,
-                                mUser.photo, mUser.hobby, mUser.email, user.key, it.result.toString()))
-                                adapter.notifyDataSetChanged()
-                            }.addOnFailureListener { exception ->
-                                val errorCode = (exception as StorageException).errorCode
-                                val errorMessage = exception.message
-                                loge("$errorCode -> $errorMessage")
+        if(isLogin){ // login
+            val userListener = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    binding.progressBar.visibility = View.GONE
+                    if(snapshot.value == null){
+                        toast("Maaf, tidak ada data")
+                    }else{
+                        val dataUsers = snapshot.children
+                        logi("masukk dataUsers2 -> $snapshot")
+
+                        for (user in dataUsers){
+                            logi("user login")
+                            if(user.key != currentUserId){
+                                val mUser = user.getValue(User::class.java)
+                                if (mUser != null) {
+                                    val gsReference = storage.getReferenceFromUrl("gs://loplop-686d0.appspot.com/${mUser.photo[0]}")
+                                    gsReference.downloadUrl.addOnCompleteListener {
+                                        users.add(
+                                            User(
+                                                mUser.name,
+                                                mUser.dateBorn,
+                                                mUser.gender,
+                                                mUser.interest,
+                                                mUser.photo,
+                                                mUser.hobby,
+                                                mUser.email
+                                            )
+                                        )
+                                        datas.add(Data(user.key, mUser.photo[0]))
+                                        adapter.notifyDataSetChanged()
+                                    }.addOnFailureListener { exception ->
+                                        val errorCode = (exception as StorageException).errorCode
+                                        val errorMessage = exception.message
+                                        loge("$errorCode -> $errorMessage")
+                                    }
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                loge(error.message)
+                override fun onCancelled(error: DatabaseError) {
+                    loge(error.message)
+                }
             }
+            database.addValueEventListener(userListener)
+        }else{
+            val userListener = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    binding.progressBar.visibility = View.GONE
+                    if(snapshot.value == null){
+                        toast("Maaf, tidak ada data")
+                    }else{
+                        val dataUsers = snapshot.children
+                        logi("masukk dataUsers2 -> $snapshot")
+                        for (user in dataUsers){
+                            val mUser = user.getValue(User::class.java)
+                            if (mUser != null) {
+                                val gsReference = storage.getReferenceFromUrl("gs://loplop-686d0.appspot.com/${mUser.photo[0]}")
+                                gsReference.downloadUrl.addOnCompleteListener {
+                                    users.add(
+                                        User(
+                                            mUser.name,
+                                            mUser.dateBorn,
+                                            mUser.gender,
+                                            mUser.interest,
+                                            mUser.photo,
+                                            mUser.hobby,
+                                            mUser.email
+                                        )
+                                    )
+                                    datas.add(Data(user.key, it.result.toString()))
+                                    adapter.notifyDataSetChanged()
+                                }.addOnFailureListener { exception ->
+                                    val errorCode = (exception as StorageException).errorCode
+                                    val errorMessage = exception.message
+                                    loge("$errorCode -> $errorMessage")
+                                }
+                            }
+                        }
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    loge(error.message)
+                }
+            }
+            database.addValueEventListener(userListener)
         }
-        database.addValueEventListener(userListener)
     }
 
-    override fun onViewSwipedToLeft(position: Int) {
-        TODO("Not yet implemented")
+    override fun onCardDragging(direction: Direction?, ratio: Float) {
+        logi("onCardDragging direction -> $direction")
     }
 
-    override fun onViewSwipedToRight(position: Int) {
-        TODO("Not yet implemented")
+    override fun onCardSwiped(direction: Direction?) {
+        logi("onCardSwiped direction -> $direction")
     }
 
-    override fun onStackEmpty() {
-        TODO("Not yet implemented")
+    override fun onCardRewound() {
+        logi("onCardRewound")
+    }
+
+    override fun onCardCanceled() {
+        logi("onCardCanceled")
+    }
+
+    override fun onCardAppeared(view: View?, position: Int) {
+        logi("onCardAppeared")
+    }
+
+    override fun onCardDisappeared(view: View?, position: Int) {
+        logi("onCardDisappeared")
     }
 }

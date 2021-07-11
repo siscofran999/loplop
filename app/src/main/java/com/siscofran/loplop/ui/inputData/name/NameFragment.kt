@@ -13,10 +13,7 @@ import com.siscofran.loplop.databinding.FragmentNameBinding
 import com.siscofran.loplop.ui.inputData.InputDataActivity.Companion.genderFragment
 import com.siscofran.loplop.ui.inputData.InputDataActivity.Companion.nameFragment
 import com.siscofran.loplop.ui.inputData.gender.GenderFragment
-import com.siscofran.loplop.utils.getAge
-import com.siscofran.loplop.utils.logi
-import com.siscofran.loplop.utils.prefGetDate
-import com.siscofran.loplop.utils.saveName
+import com.siscofran.loplop.utils.*
 import java.util.*
 
 class NameFragment : Fragment(), View.OnClickListener {
@@ -52,8 +49,12 @@ class NameFragment : Fragment(), View.OnClickListener {
                 binding.edtTgl.setText(date)
             }
         }
-
-        binding.edtName.setText(auth.currentUser?.displayName)
+        val name = view.context.prefGetName()
+        if(name != ""){
+            binding.edtName.setText(name)
+        }else{
+            binding.edtName.setText(auth.currentUser?.displayName)
+        }
         binding.edtTgl.setOnClickListener(this)
         binding.include.btnNext.setOnClickListener(this)
     }

@@ -1,9 +1,16 @@
 package com.siscofran.loplop.utils
 
+import android.Manifest
 import android.content.ContentValues
 import android.content.Context
+import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.database.Cursor
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
@@ -11,10 +18,10 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.OutputStream
+import androidx.core.app.ActivityCompat
+import java.io.*
+import java.net.HttpURLConnection
+import java.net.URL
 import java.util.*
 
 
@@ -150,12 +157,16 @@ fun saveImage(context: Context, bitmap: Bitmap, folderName: String, fileName: St
         val contentValues = ContentValues()
         contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
         contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-        contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM + File.separator + folderName)
+        contentValues.put(
+            MediaStore.MediaColumns.RELATIVE_PATH,
+            Environment.DIRECTORY_DCIM + File.separator + folderName
+        )
         imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
         fos = resolver.openOutputStream(imageUri!!)
     } else {
         val imagesDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DCIM).toString() + File.separator + folderName
+            Environment.DIRECTORY_DCIM
+        ).toString() + File.separator + folderName
         imageFile = File(imagesDir)
         if (!imageFile.exists()) {
             imageFile.mkdir()
@@ -174,6 +185,24 @@ fun saveImage(context: Context, bitmap: Bitmap, folderName: String, fileName: St
     return imageUri
 }
 
+@Throws(IOException::class)
+fun downloadFromUrl(url: String?): Drawable {
+    val x: Bitmap
+    val connection: HttpURLConnection = URL(url).openConnection() as HttpURLConnection
+    connection.connect()
+    val input: InputStream = connection.inputStream
+    x = BitmapFactory.decodeStream(input)
+    return BitmapDrawable(Resources.getSystem(), x)
+}
+
+fun checkPermissionGranted(context: Context) : Boolean {
+    return ActivityCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED //permission already granted
+}
+
+fun Bitmap.rotate(degrees: Float): Bitmap {
+    val matrix = Matrix().apply { postRotate(degrees) }
+    return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
+}
 
 //fun getPathFromURI(context: Context, uri: Uri): String? {
 //    val isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT

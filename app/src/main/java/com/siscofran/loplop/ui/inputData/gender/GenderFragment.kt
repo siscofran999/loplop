@@ -11,6 +11,7 @@ import com.siscofran.loplop.R
 import com.siscofran.loplop.databinding.FragmentGenderBinding
 import com.siscofran.loplop.ui.inputData.InputDataActivity.Companion.genderFragment
 import com.siscofran.loplop.ui.inputData.InputDataActivity.Companion.photoFragment
+import com.siscofran.loplop.ui.inputData.hobby.HobbyFragment
 import com.siscofran.loplop.ui.inputData.photo.UploadPhotoFragment
 import com.siscofran.loplop.utils.prefGetGender
 import com.siscofran.loplop.utils.prefGetInterest
