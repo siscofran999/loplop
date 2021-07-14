@@ -13,4 +13,5 @@
     <dimen name="dimen_28dp">28dp</dimen>
     <dimen name="dimen_3dp">3dp</dimen>
     <dimen name="dimen_2dp">2dp</dimen>
+    <dimen name="dimen_12dp">12dp</dimen>
 </resources>

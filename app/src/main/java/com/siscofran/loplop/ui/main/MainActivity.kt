@@ -18,13 +18,11 @@ import com.siscofran.loplop.R
 import com.siscofran.loplop.data.model.Data
 import com.siscofran.loplop.data.model.User
 import com.siscofran.loplop.databinding.ActivityMainBinding
-import com.siscofran.loplop.ui.inputData.InputDataActivity
 import com.siscofran.loplop.ui.login.LoginActivity
 import com.siscofran.loplop.utils.loge
 import com.siscofran.loplop.utils.logi
 import com.siscofran.loplop.utils.toast
 import com.yuyakaido.android.cardstackview.*
-import java.io.FileNotFoundException
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -67,10 +65,12 @@ class MainActivity : AppCompatActivity(), CardStackListener {
 
         if(isLogin && currentUser != null){
             Glide.with(this).load(currentUser.photoUrl).transform(
-                RoundedCorners(resources.getDimension(R.dimen.dimen_16dp).toInt())).into(binding.imgProfile)
+                RoundedCorners(resources.getDimension(R.dimen.dimen_16dp).toInt())
+            ).into(binding.imgProfile)
         }else{
             Glide.with(this).load(R.drawable.ic_person).transform(
-                RoundedCorners(resources.getDimension(R.dimen.dimen_16dp).toInt())).into(binding.imgProfile)
+                RoundedCorners(resources.getDimension(R.dimen.dimen_16dp).toInt())
+            ).into(binding.imgProfile)
         }
         fillWithTestData()
         manager.setStackFrom(StackFrom.None)
@@ -85,7 +85,16 @@ class MainActivity : AppCompatActivity(), CardStackListener {
         manager.setSwipeableMethod(SwipeableMethod.AutomaticAndManual)
         manager.setOverlayInterpolator(LinearInterpolator())
         binding.swipeStack.layoutManager = manager
-        adapter = MainAdapter({ item -> doClick(item) }, users, datas)
+        adapter = MainAdapter(
+            { item -> doClick(item) },
+            users,
+            datas,
+            { item -> doLike(item) },
+            { item ->
+                doNope(
+                    item
+                )
+            })
         binding.swipeStack.adapter = adapter
 
         binding.imgProfile.setOnClickListener {
@@ -98,16 +107,66 @@ class MainActivity : AppCompatActivity(), CardStackListener {
         }
     }
 
+    private fun doNope(key: String) {
+        if(isLogin){
+            val listNope = ArrayList<String>()
+            listNope.add(key)
+            val nope: MutableMap<String, Any> = HashMap()
+            nope["nope"] = listNope
+            updateLikeNope(nope, currentUserId)
+
+            val listNopeTarget = ArrayList<String>()
+            listNopeTarget.add(currentUserId)
+            val nopeTarget: MutableMap<String, Any> = HashMap()
+            nopeTarget["nope"] = listNopeTarget
+            updateLikeNope(nopeTarget, key)
+            logi("key nope -> $key")
+        }else{
+            toast("Maaf, harap login terlebih dahulu")
+            goToLoginActivity()
+        }
+    }
+
+    private fun updateLikeNope(nopeOrLike: MutableMap<String, Any>, childName: String) {
+        database.child(childName).updateChildren(nopeOrLike)
+    }
+
+    private fun doLike(key: String) {
+        if(isLogin){
+            val listLike = ArrayList<String>()
+            listLike.add(key)
+            val like: MutableMap<String, Any> = HashMap()
+            like["like"] = listLike
+            updateLikeNope(like, currentUserId)
+
+            val listLikeTarget = ArrayList<String>()
+            listLikeTarget.add(currentUserId)
+            val likeTarget: MutableMap<String, Any> = HashMap()
+            likeTarget["like"] = listLikeTarget
+            updateLikeNope(likeTarget, key)
+            logi("masukk -> $likeTarget")
+        }else{
+            toast("Maaf, harap login terlebih dahulu")
+            goToLoginActivity()
+        }
+    }
+
+    private fun goToLoginActivity(){
+        startActivity(Intent(this, LoginActivity::class.java))
+        finish()
+    }
+
+    private fun doClick(key: String) {
+        // detail
+        logi("key -> $key")
+    }
+
     private fun logOut() {
         mAuth.signOut()
         googleSignInClient.signOut().addOnCompleteListener {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
-    }
-
-    private fun doClick(key: String) {
-        logi("key -> $key")
     }
 
     private fun fillWithTestData() {
@@ -139,7 +198,7 @@ class MainActivity : AppCompatActivity(), CardStackListener {
                                                 mUser.email
                                             )
                                         )
-                                        datas.add(Data(user.key, mUser.photo[0]))
+                                        datas.add(Data(user.key, it.result.toString()))
                                         adapter.notifyDataSetChanged()
                                     }.addOnFailureListener { exception ->
                                         val errorCode = (exception as StorageException).errorCode
@@ -204,10 +263,22 @@ class MainActivity : AppCompatActivity(), CardStackListener {
 
     override fun onCardDragging(direction: Direction?, ratio: Float) {
         logi("onCardDragging direction -> $direction")
+        when(direction){
+            Direction.Right -> {
+
+            }
+            Direction.Left -> {
+
+            }
+            else -> {
+
+            }
+        }
     }
 
     override fun onCardSwiped(direction: Direction?) {
         logi("onCardSwiped direction -> $direction")
+        // masukin ke db
     }
 
     override fun onCardRewound() {
